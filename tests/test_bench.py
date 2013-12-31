@@ -17,7 +17,7 @@ def test_tt_names():
 
 
 def test_tt_names_from_repeat():
-    benchmark = tt.repeat().next()
+    benchmark = next(tt.repeat())
     assert benchmark.name == 'test_tt_names_from_repeat'
 
 
@@ -31,3 +31,37 @@ def test_tt_names_from_repeat():
 def test_seconds_to_str(sec, scale_factor, string):
     assert tt.scale_factor(sec) == scale_factor
     assert tt.seconds_to_str(sec) == string
+
+
+def test_counter_values():
+    benchmark = tt.Benchmark()
+    tt.incr('foo')
+    with benchmark:
+        tt.incr('foo')
+        tt.incr('foo')
+        tt.incr('foo')
+    with benchmark:
+        pass
+    with benchmark:
+        tt.incr('foo')
+        tt.incr('foo')
+    assert benchmark.counter_values('foo') == [3, 0, 2]
+
+
+def test_counter_names():
+    benchmark = tt.Benchmark()
+    with benchmark:
+        tt.incr('foo')
+    with benchmark:
+        tt.incr('bar')
+    assert benchmark.counters() == ['bar', 'foo']
+
+def test_summary():
+    benchmark = tt.Benchmark()
+    with benchmark:
+        tt.incr('foo')
+        tt.incr('bar')
+    with benchmark:
+        tt.incr('bar')
+    print benchmark.summary()
+
